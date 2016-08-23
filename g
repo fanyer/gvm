@@ -25,21 +25,21 @@ VERSION=$(cat ${ROOT_DIR}/VERSION)
 #
 show_help() {
     cat <<-EOF
-Usage: oo [COMMAND]
+Usage: gpm [COMMAND]
 
 Commands:
-  oo                         Output current go version
-  oo ls                      Output versions installed
-  oo <version>               Use go <version>
-  oo use <version>           Use go <version>
-  oo get <version>           Get go <version>
-  oo rm <version>            Remove the given version
-  oo as <version>            Run go from oo on a specific version
-  oo dir [<version>]         Show go directory by version
-  oo bin [<version>]         Show go binary path by version
-  oo build <version>         Build go by version
-  oo env                     Output current go env
-  oo upgrade                 Upgrade oo to latest version
+  gpm                         Output current go version
+  gpm ls                      Output versions installed
+  gpm <version>               Use go <version>
+  gpm use <version>           Use go <version>
+  gpm get <version>           Get go <version>
+  gpm rm <version>            Remove the given version
+  gpm as <version>            Run go from gpm on a specific version
+  gpm dir [<version>]         Show go directory by version
+  gpm bin [<version>]         Show go binary path by version
+  gpm build <version>         Build go by version
+  gpm env                     Output current go env
+  gpm upgrade                 Upgrade gpm to latest version
 
 Options:
   -v, --version              Output oo's version
