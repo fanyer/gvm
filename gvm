@@ -10,6 +10,17 @@ if [ ! -z "${GVM_BOOTSTRAP_VERSION}" ]; then
     BOOTSTRAP_VERSION=${GVM_BOOTSTRAP_VERSION}
 fi
 
+$dir1="/usr/local/gvm"
+$dir2="/usr/local/go"
+
+if [ ! -d "$dir1" ]; then
+mkdir "$dir1"
+fi
+
+if [ ! -d "$dir2" ]; then
+mkdir "$dir2"
+fi
+
 
 #
 # Global Vars
