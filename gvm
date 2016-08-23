@@ -3,17 +3,19 @@
 #
 # Settings
 #
-MIRROR_PATTERN=${OO_MIRROR_PATTERN-https://codeload.github.com/golang/go/tar.gz/go%s}
-BUILD_CMD=${OO_BUILD_CMD-./make.bash}
+MIRROR_PATTERN=${GVM_MIRROR_PATTERN-https://codeload.github.com/golang/go/tar.gz/go%s}
+BUILD_CMD=${GVM_BUILD_CMD-./make.bash}
 
-if [ ! -z "${OO_BOOTSTRAP_VERSION}" ]; then
-    BOOTSTRAP_VERSION=${OO_BOOTSTRAP_VERSION}
+if [ ! -z "${GVM_BOOTSTRAP_VERSION}" ]; then
+    BOOTSTRAP_VERSION=${GVM_BOOTSTRAP_VERSION}
 fi
 
+
+mkdir /usr/local/gvm
 #
 # Global Vars
 #
-ROOT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE:-$_}")/.." && pwd -P)
+ROOT_DIR=$(cd -P /usr/local/gvm && pwd -P)
 VERSIONS_DIR=${ROOT_DIR}/versions
 GOROOT_DIR=${ROOT_DIR}/go
 GOBIN_PATH=${GOROOT_DIR}/bin/go
@@ -25,31 +27,31 @@ VERSION=$(cat ${ROOT_DIR}/VERSION)
 #
 show_help() {
     cat <<-EOF
-Usage: gpm [COMMAND]
+Usage: gvm [COMMAND]
 
 Commands:
-  gpm                         Output current go version
-  gpm ls                      Output versions installed
-  gpm <version>               Use go <version>
-  gpm use <version>           Use go <version>
-  gpm get <version>           Get go <version>
-  gpm rm <version>            Remove the given version
-  gpm as <version>            Run go from gpm on a specific version
-  gpm dir [<version>]         Show go directory by version
-  gpm bin [<version>]         Show go binary path by version
-  gpm build <version>         Build go by version
-  gpm env                     Output current go env
-  gpm upgrade                 Upgrade gpm to latest version
+  gvm                         Output current go version
+  gvm ls                      Output versions installed
+  gvm <version>               Use go <version>
+  gvm use <version>           Use go <version>
+  gvm get <version>           Get go <version>
+  gvm rm <version>            Remove the given version
+  gvm as <version>            Run go from gvm on a specific version
+  gvm dir [<version>]         Show go directory by version
+  gvm bin [<version>]         Show go binary path by version
+  gvm build <version>         Build go by version
+  gvm env                     Output current go env
+  gvm upgrade                 Upgrade gvm to latest version
 
 Options:
   -v, --version              Output oo's version
   -h, --help                 Output this help message
 
 Environment Variables:
-  OO_MIRROR_PATTERN          Mirror url pattern to download go source tarball
+  GVM_MIRROR_PATTERN          Mirror url pattern to download go source tarball
                              default: https://codeload.github.com/golang/go/tar.gz/go%s
-  OO_BUILD_CMD               Command to build go from source, default: ./make.bash
-  OO_BOOTSTRAP_VERSION       Bootstrap go version to compile the target version,
+  GVM_BUILD_CMD               Command to build go from source, default: ./make.bash
+  GVM_BOOTSTRAP_VERSION       Bootstrap go version to compile the target version,
                              default: the latest installed version
 
 Version: ${VERSION}
@@ -58,7 +60,47 @@ EOF
 }
 
 # https://gist.github.com/livibetter/1861384
-source "vercmp.sh"
+
+VER_SPLIT_SED='s/\./ /g;s/\([[:digit:]]\)\([^[:digit:] ]\)/\1 \2/g;s/\([^[:digit:] ]\)\([[:digit:]]\)/\1 \2/g'
+
+# Compare with one element of version components
+_ver_cmp_1() {
+  [[ "$1" = "$2" ]] && return 0
+  if [[ -z "${1//[[:digit:]]/}" ]] && [[ -z "${2//[[:digit:]]/}" ]]; then
+    # Both $1 and $2 are numbers
+    # Using arithmetic comparison
+    (( $1 > $2 )) && return 1
+    (( $1 < $2 )) && return 2
+  else
+    # Either or both are not numbers, containing non-digit characters
+    # Using string comparison
+    [[ "$1" > "$2" ]] && return 1
+    [[ "$1" < "$2" ]] && return 2
+  fi
+  # This should not be happening
+  exit 1
+}
+
+vercmp() {
+  local A B i result
+  A=($(sed "$VER_SPLIT_SED"  <<< "$1"))
+  B=($(sed "$VER_SPLIT_SED"  <<< "$2"))
+  i=0
+  while (( i < ${#A[@]} )) && (( i < ${#B[@]})); do
+    _ver_cmp_1 "${A[i]}" "${B[i]}"
+    result=$?
+    [[ $result =~ [12] ]] && return $result
+    let i++
+  done
+  # Which has more, then it is the newer version
+  _ver_cmp_1 "${#A[i]}" "${#B[i]}"
+  return $?
+}
+
+
+
+
+
 
 show_version() {
     echo ${VERSION}
