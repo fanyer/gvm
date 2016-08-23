@@ -11,14 +11,13 @@ if [ ! -z "${GVM_BOOTSTRAP_VERSION}" ]; then
 fi
 
 
-mkdir /usr/local/gvm
 #
 # Global Vars
 #
 ROOT_DIR=$(cd -P /usr/local/gvm && pwd -P)
 VERSIONS_DIR=${ROOT_DIR}/versions
-GOROOT_DIR=${ROOT_DIR}/go
-GOBIN_PATH=${GOROOT_DIR}/bin/go
+GOROOT_DIR=$(cd -P /usr/local/go && pwd -P)
+GOBIN_PATH=${GOROOT_DIR}/bin
 
 VERSION=$(cat ${ROOT_DIR}/VERSION)
 
@@ -142,9 +141,12 @@ use() {
     target_dir=${VERSIONS_DIR}/$1
     test -d ${target_dir} || abort 'not installed'
     # create soft link
-    test -f ${GOROOT_DIR} && rm ${GOROOT_DIR}
-    test -d ${GOROOT_DIR} && rm -r ${GOROOT_DIR}
-    ln -fs ${target_dir} ${GOROOT_DIR}
+
+    echo ${GOBIN_PATH}
+    echo ${target_dir}/bin
+
+    cp -r ${target_dir}/bin/ ${GOBIN_PATH}
+
     printf '=> ' && echo $(current)
 }
 
