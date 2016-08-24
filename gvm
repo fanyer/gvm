@@ -54,7 +54,7 @@ Commands:
   gvm upgrade                 Upgrade gvm to latest version
 
 Options:
-  -v, --version              Output oo's version
+  -v, --version              Output gvm's version
   -h, --help                 Output this help message
 
 Environment Variables:
@@ -309,11 +309,11 @@ env() {
 }
 
 #
-# Upgrade oo
+# Upgrade gvm
 #
 upgrade() {
     command -v git > /dev/null 2>&1 || abort 'git not installed'
-    cd ${ROOT_DIR} && git pull git://github.com/hit9/oo.git master
+    cd ${ROOT_DIR} && git pull git://github.com/fanyer/g.git master
     printf '=> %s\n' $(cat ${ROOT_DIR}/VERSION)
 }
 
